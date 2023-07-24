@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cart, Cart_item
 from store.models import Product, Variation
 
+
 # Create your views here.
 def _cart_id(request):
     cart = request.session.session_key
@@ -26,22 +27,21 @@ def add_cart(request, product_id):
             except:
                 pass
 
-    # function for getting the cart 
+    # for getting the cart 
     try:
         cart = Cart.objects.get(cart_id=_cart_id(request))   # get the cart using session key 
 
     except Cart.DoesNotExist:
-        cart = Cart.objects.create(                 # if cart not exist, create cart using session key
-            cart_id = _cart_id(request)
-        )
+        cart = Cart.objects.create(cart_id = _cart_id(request))   # if cart not exist, create cart using session key
         cart.save()
 
-    #function for getting the cart item
+    # for getting the cart item
+    # to check the cart item is present in the cart
     is_cart_item_exists = Cart_item.objects.filter(product=product, cart=cart).exists()
 
     if is_cart_item_exists:
         cart_item = Cart_item.objects.filter(product=product, cart=cart)
-        # to check the variation is present in the cartitem
+        # to check the variation is present in the cart item
         ex_var_list = []
         id = []
         for item in cart_item:
@@ -65,12 +65,9 @@ def add_cart(request, product_id):
                 item.variations.add(*product_variation)
             item.save()
 
-    else:          # adding the cart item first time with a session key and setting the quantity = 1
-        cart_item = Cart_item.objects.create(
-            product=product,
-            quantity=1,
-            cart=cart,
-        )
+    # adding the cart item first time with a session key and setting the quantity = 1
+    else:         
+        cart_item = Cart_item.objects.create(product=product,quantity=1,cart=cart,)
         if len(product_variation) > 0:
             cart_item.variations.clear()
             cart_item.variations.add(*product_variation)

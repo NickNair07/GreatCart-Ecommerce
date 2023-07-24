@@ -23,6 +23,7 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
     
+    
 
 class VariationManager(models.Manager):
     def colors(self):
@@ -46,6 +47,6 @@ class Variation(models.Model):
 
     objects = VariationManager()
 
-    def __str__(self):  # unicode instead of str. because product is not a string
+    def __str__(self): 
         return self.variation_value
     
