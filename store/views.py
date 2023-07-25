@@ -21,7 +21,7 @@ def store(request, category_slug=None):     # None is set to avoid getting error
         products = Product.objects.all().filter(is_available=True)
 
         # pagination for all products
-        paginator = Paginator(products, 3)
+        paginator = Paginator(products, 6)
         page = request.GET.get('page')
         paged_products = paginator.get_page(page)
         product_count = products.count()
