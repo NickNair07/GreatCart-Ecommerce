@@ -163,7 +163,7 @@ def remove_cart_item(request, product_id, cart_item_id):
     
     product = get_object_or_404(Product, id=product_id)
     if request.user.is_authenticated:
-        cart_item = Cart_item.objects.get(cart=cart, user=request.user, id=cart_item_id)
+        cart_item = Cart_item.objects.get(product=product, user=request.user, id=cart_item_id)
     else:
         cart = Cart.objects.get(cart_id=_cart_id(request))      # get the cart using session key
         cart_item = Cart_item.objects.get(cart=cart, product=product, id=cart_item_id)   # get the cart item related to the specific cart
