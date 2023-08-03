@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'store',
     'carts',
     'orders',
+
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nitheeshkm9640@gmail.com'
 EMAIL_HOST_PASSWORD = 'zokmaowvnypviwbs'
 EMAIL_USE_TLS = True
+
+# RAZORPAY Integration
+RAZORPAY_KEY_ID = 'rzp_test_64kqxuc3gFChsw'
+RAZORPAY_KEY_SECRET = 'Yrsd8gy4EwbWfshGSs5FbgDC'
