@@ -26,7 +26,7 @@
             <div class="card">
                 <h5 class="card-header">Payment Methods</h5>
                 <div class="card-body">
-                  <p class="card-text">PayPal</p>
+                  <p class="card-text">Razorpay</p>
                 </div>
             </div>
             <div class="card">
@@ -64,8 +64,8 @@
 								</td>
 								<td>
 									<div class="price-wrap">
-										<var class="price">$ {{ cart_item.sub_total }}</var>
-										<small class="text-muted"> $ {{ cart_item.product.price }} each </small>
+										<var class="price">₹ {{ cart_item.sub_total }}</var>
+										<small class="text-muted"> ₹ {{ cart_item.product.price }} each </small>
 									</div> <!-- price-wrap .// -->
 								</td>
 					
@@ -120,53 +120,95 @@
 
     <!-- Razorpay script start -->
     <script>
+
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+     
       var amount = "{{ grand_total }}"
       var url = "{% url 'payments' %}"
-      // var csrftoken = getCookie('csrftoken');
+      var csrftoken = getCookie('csrftoken');
       var orderID = "{{order.order_number}}"
-      var redirect_url = "{% url 'home' %}"
-       
+      //var payment_method = 'Razorpay'
+      var redirect_url = "{% url 'order_complete' %}"
+    
+     // ....4.razorpay integration for razorpay popup
       var options = {
-      "key": "{{api_key_id}}", // Enter the Key ID generated from the Dashboard
-      "name": "GreatKart",
-      "description": "Online Shopping Platform",
-      "image": "{% static 'images/logo.png' %}",
-      "order_id": "{{order_id}}", // This is the sample order id that you got while printing the above print statement in above steps and that you passed in context dictionary.
-       
-       
-      "handler": function (response){
-      console.log(response)
-      var transID = response.razorpay_payment_id
-      var payment_method = 'Razorpay'
-      var status = 'Payment Success'
-      },
-      "prefill": {
-      "name": "{{user.first_name}} {{user.last_name}}",
-      "email": "{{user.email}}",
-      "contact": "{{user.phone_number}}"
-      },
-      "theme": {
-      "color": "#3399cc"
-      }
+        "key": "{{api_key_id}}", // Enter the Key ID generated from the Dashboard
+        "name": "GreatKart",
+        "description": "Online Shopping Platform",
+        "image": "{% static 'images/logo.png' %}",
+        "order_id": "{{order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response){
+          console.log(response)
+          var transID = response.razorpay_payment_id
+          var payment_method = 'Razorpay'
+          var status = 'Payment Success'
+          sendData(transID, payment_method, status);
+        },
+        "prefill": {
+          "name": "{{user.first_name}} {{user.last_name}}",
+          "email": "{{user.email}}",
+          "contact": "{{user.phone_number}}"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
       };
-       
-       
+    
+    
       var rzp1 = new Razorpay(options);
       rzp1.on('payment.failed', function (response){
-      console.log(response)
-      console.log(response.error.code);
-      console.log(response.error.description);
-      console.log(response.error.source);
-      console.log(response.error.step);
-      console.log(response.error.reason);
-      console.log(response.error.metadata.order_id);
-      console.log(response.error.metadata.payment_id);
+        console.log(response)
+        console.log(response.error.code);
+        console.log(response.error.description);
+        console.log(response.error.source);
+        console.log(response.error.step);
+        console.log(response.error.reason);
+        console.log(response.error.metadata.order_id);
+        console.log(response.error.metadata.payment_id);
       });
-       
+    
       document.getElementById('rzp-button1').onclick = function(e){
-      rzp1.open();
-      e.preventDefault();
+        rzp1.open();
+        e.preventDefault();
       }
+     // Razorpay ends here
+      //Fetching data to send it to payments views.py
+      function sendData(transID, payment_method, status){
+        fetch(url, {
+          method : "POST",
+          headers: {
+            "Content-type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify({
+            orderID: orderID,
+            transID: transID,
+            payment_method: payment_method,
+            status: status,
+          }),
+        })
+      
+      .then((response) => response.json())
+      .then((data) => {
+          window.location.href = redirect_url + '?order_number='+data.order_number+'&payment_id='+data.transID;
+        });
+      
+      } 
+    
     </script>
     <!-- Razorpay script end -->
    
